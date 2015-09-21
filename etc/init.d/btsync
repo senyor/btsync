@@ -1,8 +1,8 @@
 #!/bin/sh
 ### BEGIN INIT INFO
 # Provides:          btsync
-# Required-Start:    $local_fs $network $remote_fs
-# Required-Stop:     $local_fs $network $remote_fs
+# Required-Start:    $local_fs $network $remote_fs $time
+# Required-Stop:     $local_fs $network $remote_fs $time
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: btsync server
@@ -35,6 +35,9 @@ DAEMON_OPTS=""
 
 # Read configuration variable file if it is present
 [ -r /etc/default/$NAME ] && . /etc/default/$NAME
+
+# Fix alignment error
+echo 2 > /proc/cpu/alignment 
 
 DAEMON_ARGS="--config $CONFIGFILE --log $LOGFILE --storage $STORAGEDIR $DAEMON_OPTS"
 
