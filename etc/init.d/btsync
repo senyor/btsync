@@ -18,6 +18,7 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="BitTorrent Sync server"
 NAME=btsync
 DAEMON=/usr/sbin/btsync
+CPULIMIT=/usr/bin/cpulimit
 PIDDIR=/run/$NAME
 PIDFILE=$PIDDIR/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
@@ -31,6 +32,7 @@ GROUP=btsync
 DAEMON_OPTS=""
 
 # Exit if the package is not installed
+[ -x "$CPULIMIT" ] || exit 0
 [ -x "$DAEMON" ] || exit 0
 
 # Read configuration variable file if it is present
@@ -38,6 +40,9 @@ DAEMON_OPTS=""
 
 # Fix alignment error
 echo 2 > /proc/cpu/alignment 
+
+# Apply memory restrictions
+#ulimit -v 40960
 
 DAEMON_ARGS="--config $CONFIGFILE --log $LOGFILE --storage $STORAGEDIR $DAEMON_OPTS"
 
@@ -69,6 +74,8 @@ do_start()
 		--chuid $USER:$GROUP --exec $DAEMON -- \
 		$DAEMON_ARGS \
 		|| return 2
+	sleep 3
+	$CPULIMIT -p `pidof $DAEMON` -l 25 -b > nul
 }
 
 #
